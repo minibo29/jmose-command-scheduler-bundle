@@ -20,18 +20,18 @@ class JMoseCommandSchedulerExtension extends Extension
     {
         $config = $this->processConfiguration(new Configuration(), $configs);
 
-        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yml');
 
         foreach ($config as $key => $value) {
-            $container->setParameter('jmose_command_scheduler.'.$key, $value);
+            $container->setParameter('jmose_command_scheduler.' . $key, $value);
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getAlias()
+    public function getAlias(): string
     {
         return 'jmose_command_scheduler';
     }

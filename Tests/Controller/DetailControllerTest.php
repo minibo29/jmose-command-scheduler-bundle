@@ -4,22 +4,34 @@ namespace JMose\CommandSchedulerBundle\Tests\Controller;
 
 use JMose\CommandSchedulerBundle\Fixtures\ORM\LoadScheduledCommandData;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
-use Liip\TestFixturesBundle\Test\FixturesTrait;
+use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
+use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 
 /**
  * Class DetailControllerTest.
  */
 class DetailControllerTest extends WebTestCase
 {
-    use FixturesTrait;
 
+    /** @var AbstractDatabaseTool */
+    protected $databaseTool;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setUp(): void
+    {
+        self::bootKernel();
+
+        $this->databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+    }
     /**
      * Test "Create a new command" button.
      */
     public function testInitNewScheduledCommand()
     {
         $client = parent::createClient();
-        $this->loadFixtures([]);
+        $this->databaseTool->loadAliceFixture([LoadScheduledCommandData::class]);
 
         $crawler = $client->request('GET', '/command-scheduler/detail/new');
         $this->assertEquals(1, $crawler->filter('button[id="command_scheduler_detail_save"]')->count());
@@ -32,7 +44,7 @@ class DetailControllerTest extends WebTestCase
     {
         $client = parent::createClient();
         // DataFixtures create 4 records
-        $this->loadFixtures([LoadScheduledCommandData::class]);
+        $this->databaseTool->loadAliceFixture([LoadScheduledCommandData::class]);
 
         $crawler = $client->request('GET', '/command-scheduler/detail/edit/1');
         $this->assertEquals(1, $crawler->filter('button[id="command_scheduler_detail_save"]')->count());
@@ -60,7 +72,7 @@ class DetailControllerTest extends WebTestCase
     {
         $client = parent::createClient();
 
-        $this->loadFixtures([]);
+        $this->databaseTool->loadAliceFixture([]);
 
         $client->followRedirects(true);
         $crawler = $client->request('GET', '/command-scheduler/detail/new');
@@ -89,7 +101,7 @@ class DetailControllerTest extends WebTestCase
         $client = parent::createClient();
 
         // DataFixtures create 4 records
-        $this->loadFixtures([LoadScheduledCommandData::class]);
+        $this->databaseTool->loadAliceFixture([LoadScheduledCommandData::class]);
 
         $client->followRedirects(true);
         $crawler = $client->request('GET', '/command-scheduler/detail/edit/1');

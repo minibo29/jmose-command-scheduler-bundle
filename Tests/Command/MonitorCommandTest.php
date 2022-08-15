@@ -4,19 +4,22 @@ namespace JMose\CommandSchedulerBundle\Tests\Command;
 
 use JMose\CommandSchedulerBundle\Fixtures\ORM\LoadScheduledCommandData;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
-use Liip\TestFixturesBundle\Test\FixturesTrait;
+use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
+use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 
 /**
  * Class MonitorCommandTest.
  */
 class MonitorCommandTest extends WebTestCase
 {
-    use FixturesTrait;
 
     /**
      * @var \Doctrine\ORM\EntityManager
      */
     private $em;
+
+    /** @var AbstractDatabaseTool */
+    protected $databaseTool;
 
     /**
      * {@inheritdoc}
@@ -28,6 +31,8 @@ class MonitorCommandTest extends WebTestCase
         $this->em = static::$kernel->getContainer()
             ->get('doctrine')
             ->getManager();
+
+        $this->databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
     }
 
     /**
@@ -36,13 +41,13 @@ class MonitorCommandTest extends WebTestCase
     public function testExecuteWithError()
     {
         // DataFixtures create 4 records
-        $this->loadFixtures([LoadScheduledCommandData::class]);
+        $this->databaseTool->loadAliceFixture([LoadScheduledCommandData::class]);
 
         // One command is locked in fixture (2), another have a -1 return code as lastReturn (4)
         $output = $this->runCommand('scheduler:monitor', ['--dump' => true], true)->getDisplay();
 
-        $this->assertRegExp('/two:/', $output);
-        $this->assertRegExp('/four:/', $output);
+        $this->assertMatchesRegularExpression('/two:/', $output);
+        $this->assertMatchesRegularExpression('/four:/', $output);
     }
 
     /**
@@ -51,7 +56,7 @@ class MonitorCommandTest extends WebTestCase
     public function testExecuteWithoutError()
     {
         // DataFixtures create 4 records
-        $this->loadFixtures([LoadScheduledCommandData::class]);
+        $this->databaseTool->loadAliceFixture([LoadScheduledCommandData::class]);
 
         $two = $this->em->getRepository('JMoseCommandSchedulerBundle:ScheduledCommand')->find(2);
         $four = $this->em->getRepository('JMoseCommandSchedulerBundle:ScheduledCommand')->find(4);

@@ -1,6 +1,7 @@
 <?php
 
 use Doctrine\Common\Annotations\AnnotationRegistry;
+//use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 $file = __DIR__.'/../vendor/autoload.php';
 if (!file_exists($file)) {
@@ -11,7 +12,7 @@ $autoload = require $file;
 if (is_dir(__DIR__.'/../build')) {
     echo "Removing files in the build directory.\n".__DIR__."\n";
     $files = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator(__DIR__.'/../build/', RecursiveDirectoryIterator::SKIP_DOTS),
+        new RecursiveDirectoryIterator(__DIR__.'/../build/', FilesystemIterator::SKIP_DOTS),
         RecursiveIteratorIterator::CHILD_FIRST
     );
 
@@ -24,9 +25,14 @@ if (is_dir(__DIR__.'/../build')) {
     mkdir(__DIR__.'/../build', 0777);
 }
 
+//var_dump(service('annotations.reader'));
+//service('annotations.reader');
+
 // Registers automatically all doctrine annotations when required
 AnnotationRegistry::registerLoader(function ($class) use ($autoload) {
     $autoload->loadClass($class);
 
     return class_exists($class, false);
 });
+
+//var_dump(service('annotations.reader'));

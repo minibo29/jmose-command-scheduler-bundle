@@ -4,7 +4,8 @@ namespace JMose\CommandSchedulerBundle\Tests\Controller;
 
 use JMose\CommandSchedulerBundle\Fixtures\ORM\LoadScheduledCommandData;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
-use Liip\TestFixturesBundle\Test\FixturesTrait;
+use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
+use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -12,7 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ListControllerTest extends WebTestCase
 {
-    use FixturesTrait;
+    /** @var AbstractDatabaseTool */
+    protected $databaseTool;
 
     /**
      * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
@@ -33,6 +35,8 @@ class ListControllerTest extends WebTestCase
         $this->em = static::$kernel->getContainer()
             ->get('doctrine')
             ->getManager();
+
+        $this->databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
     }
 
     /**
@@ -41,7 +45,7 @@ class ListControllerTest extends WebTestCase
     public function testIndex()
     {
         // DataFixtures create 4 records
-        $this->loadFixtures([LoadScheduledCommandData::class]);
+        $this->databaseTool->loadAliceFixture([LoadScheduledCommandData::class]);
 
         $crawler = $this->client->request('GET', '/command-scheduler/list');
         $this->assertEquals(4, $crawler->filter('a[href^="/command-scheduler/action/toggle/"]')->count());
@@ -53,7 +57,7 @@ class ListControllerTest extends WebTestCase
     public function testRemove()
     {
         // DataFixtures create 4 records
-        $this->loadFixtures([LoadScheduledCommandData::class]);
+        $this->databaseTool->loadAliceFixture([LoadScheduledCommandData::class]);
 
         $this->client->followRedirects(true);
 
@@ -68,7 +72,7 @@ class ListControllerTest extends WebTestCase
     public function testToggle()
     {
         // DataFixtures create 4 records
-        $this->loadFixtures([LoadScheduledCommandData::class]);
+        $this->databaseTool->loadAliceFixture([LoadScheduledCommandData::class]);
 
         $this->client->followRedirects(true);
 
@@ -87,7 +91,7 @@ class ListControllerTest extends WebTestCase
     public function testExecute()
     {
         // DataFixtures create 4 records
-        $this->loadFixtures([LoadScheduledCommandData::class]);
+        $this->databaseTool->loadAliceFixture([LoadScheduledCommandData::class]);
 
         $this->client->followRedirects(true);
 
@@ -102,7 +106,7 @@ class ListControllerTest extends WebTestCase
     public function testUnlock()
     {
         // DataFixtures create 4 records
-        $this->loadFixtures([LoadScheduledCommandData::class]);
+        $this->databaseTool->loadAliceFixture([LoadScheduledCommandData::class]);
 
         $this->client->followRedirects(true);
 
@@ -120,7 +124,7 @@ class ListControllerTest extends WebTestCase
     public function testMonitorWithErrors()
     {
         // DataFixtures create 4 records
-        $this->loadFixtures([LoadScheduledCommandData::class]);
+        $this->databaseTool->loadAliceFixture([LoadScheduledCommandData::class]);
 
         $this->client->followRedirects(true);
 
@@ -139,7 +143,7 @@ class ListControllerTest extends WebTestCase
     public function testMonitorWithoutErrors()
     {
         // DataFixtures create 4 records
-        $this->loadFixtures([LoadScheduledCommandData::class]);
+        $this->databaseTool->loadAliceFixture([LoadScheduledCommandData::class]);
 
         $two = $this->em->getRepository('JMoseCommandSchedulerBundle:ScheduledCommand')->find(2);
         $four = $this->em->getRepository('JMoseCommandSchedulerBundle:ScheduledCommand')->find(4);

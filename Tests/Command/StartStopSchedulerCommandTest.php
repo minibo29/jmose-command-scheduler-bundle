@@ -5,14 +5,24 @@ namespace JMose\CommandSchedulerBundle\Tests\Command;
 use JMose\CommandSchedulerBundle\Command\StartSchedulerCommand;
 use JMose\CommandSchedulerBundle\Fixtures\ORM\LoadScheduledCommandData;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
-use Liip\TestFixturesBundle\Test\FixturesTrait;
+use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
+use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 
 /**
  * Class StartStopSchedulerCommandTest.
  */
 class StartStopSchedulerCommandTest extends WebTestCase
 {
-    use FixturesTrait;
+    /** @var AbstractDatabaseTool */
+    protected $databaseTool;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        self::bootKernel();
+
+        $this->databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+    }
 
     /**
      * Test scheduler:start and scheduler:stop.
@@ -20,7 +30,7 @@ class StartStopSchedulerCommandTest extends WebTestCase
     public function testStartAndStopScheduler()
     {
         // DataFixtures create 4 records
-        $this->loadFixtures([LoadScheduledCommandData::class]);
+        $this->databaseTool->loadAliceFixture([LoadScheduledCommandData::class]);
 
         $pidFile = sys_get_temp_dir().DIRECTORY_SEPARATOR.StartSchedulerCommand::PID_FILE;
 
@@ -30,6 +40,6 @@ class StartStopSchedulerCommandTest extends WebTestCase
 
         $output = $this->runCommand('scheduler:stop')->getDisplay();
         $this->assertStringStartsWith('Command scheduler is stopped.', $output);
-        $this->assertFileNotExists($pidFile);
+        $this->assertFileDoesNotExist($pidFile);
     }
 }
