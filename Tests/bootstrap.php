@@ -25,14 +25,10 @@ if (is_dir(__DIR__.'/../build')) {
     mkdir(__DIR__.'/../build', 0777);
 }
 
-//var_dump(service('annotations.reader'));
-//service('annotations.reader');
+//// Registers automatically all doctrine annotations when required
+//AnnotationRegistry::registerLoader(function ($class) use ($autoload) {
+//    $autoload->loadClass($class);
+//
+//    return class_exists($class, false);
+//});
 
-// Registers automatically all doctrine annotations when required
-AnnotationRegistry::registerLoader(function ($class) use ($autoload) {
-    $autoload->loadClass($class);
-
-    return class_exists($class, false);
-});
-
-//var_dump(service('annotations.reader'));
